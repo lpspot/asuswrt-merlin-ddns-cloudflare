@@ -15,14 +15,7 @@ get_dns_record_ids() {
 
   RESPONSE="$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records?type=${type}&name=${record_name}" \
     -H "Authorization: Bearer ${api_token}" \
-    -H "Content-Type:application/json")"
-
-  echo $RESPONSE | python -c "
-import sys, json
-
-data = json.load(sys.stdin)
-for record in data['result']:
-    print (record['id'])"
+    -H "Content-Type:application/json" | grep -o '"id":"[^"]*' | cut -c 7-)"
 }
 
 update_dns_record() {
@@ -37,7 +30,7 @@ update_dns_record() {
   curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/${zone_id}/dns_records/${record_id}" \
     -H "Authorization: Bearer ${api_token}" \
     -H "Content-Type: application/json" \
-    --data "{\"type\":\"${type}\",\"name\":\"${record_name}\",\"content\":\"${ip}\",\"ttl\":${record_ttl},\"proxied\":false}"
+    --data "{\"type\":\"${type}\",\"name\":\"${record_name}\",\"content\":\"${ip}\",\"ttl\":${record_ttl},\"proxied\":false,\"comment\":\"Asuswrt ddns via ddns-start\"}"
 }
 
 RESULT=true
